@@ -4,11 +4,6 @@ import {Link} from 'react-router-dom';
 import classes from './Drawer.module.sass';
 import Backdrop from '../../UI/Backdrop/Backdrop';
 
-const links = [
-  {url: '/', label: 'Список тестов', exact: "true"},
-  {url: '/quiz-creator', label: 'Создать тест', exact: "false"},
-  {url: '/auth', label: 'Авторизация', exact: "false"},
-];
 
 class Drawer extends Component {
 
@@ -35,6 +30,17 @@ class Drawer extends Component {
 
     if (!this.props.isOpen) {
       cls.push(classes.close)
+    }
+
+    const links = [
+      {url: '/', label: 'Список тестов', exact: "true"},
+    ]
+
+    if (this.props.isAuthenticated) {
+      links.push({url: '/quiz-creator', label: 'Создать тест', exact: "false"});
+      links.push({url: '/logout', label: 'Выйти', exact: "false"})
+    } else {
+      links.push({url: '/auth', label: 'Авторизация', exact: "false"})
     }
 
     return (

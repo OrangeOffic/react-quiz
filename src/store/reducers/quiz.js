@@ -1,6 +1,12 @@
 const initialState = {
   quizes: [],
-  error: null
+  error: null,
+  results: {},
+  finishedQuiz: false,
+  activeQuestion: 0,
+  answerState: null,
+  quiz: null,
+  loading: true
 }
 
 export default function quizReducer(state = initialState, action) {
@@ -19,6 +25,47 @@ export default function quizReducer(state = initialState, action) {
       return {
         ...state,
         error: action.error
+      }
+    case 'FETCH_QUIZ_ERROR':
+      return {
+        ...state,
+        error: action.error
+      }
+    case 'FETCH_QUIZ_SUCCESS':
+      return {
+        ...state,
+        quiz: action.quiz,
+        loading: false
+      }
+    case 'FETCH_QUIZ_START':
+      return {
+        ...state,
+        loading: true
+      }
+    case 'RETRY_QUIZ':
+      return {
+        ...state,
+        results: {},
+        finishedQuiz: false,
+        activeQuestion: 0,
+        answerState: null
+      }
+    case 'SET_ANSWER_STATE':
+      return {
+        ...state,
+        answerState: action.state,
+        results: action.results
+      }
+    case 'SET_ACTIVE_QUESTION':
+      return {
+        ...state,
+        activeQuestion: action.questionId,
+        answerState: null
+      }
+    case 'FINISH_QUIZ':
+      return {
+        ...state,
+        finishedQuiz: true
       }
     default: 
       return state

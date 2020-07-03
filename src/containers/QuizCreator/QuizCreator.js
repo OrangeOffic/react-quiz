@@ -5,7 +5,8 @@ import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import {createFormControls, validateControl, validateForm} from '../../form/form';
 import Select from '../../components/UI/Select/Select';
-import axios from 'axios';
+import {connect} from 'react-redux';
+import {createQuestion, createQuiz} from '../../store/actions/create';
 
 const createOptionControl = (number) => {
   return createFormControls({
@@ -18,11 +19,10 @@ const createOptionControl = (number) => {
   })
 }
 
-export default class QuizCreator extends Component {
+class QuizCreator extends Component {
 
   state = {
     rightAnswerId: 1,
-    quiz: [],
     isFormValid: false,
     formControls: {
       question: createFormControls({
@@ -42,37 +42,32 @@ export default class QuizCreator extends Component {
     event.preventDefault();
   }
 
-  onCreateQuizHandler = async event => {
-    event.preventDefault();
+  onCreateQuizHandler = event => {
+    event.preventDefault();    
 
-    try {
-      await axios.post('https://react-quiz-a70a7.firebaseio.com/quizes.json', this.state.quiz);
+    this.setState({
+      rightAnswerId: 1,
+      isFormValid: false,
+      formControls: {
+        question: createFormControls({
+          label: 'Вопрос',
+          errorMessage: 'Это поле не может быть пустым'
+        }, {
+          required: true
+        }),
+        option1: createOptionControl(1),
+        option2: createOptionControl(2),
+        option3: createOptionControl(3),
+        option4: createOptionControl(4)
+      }
+    })
 
-      this.setState({
-        quiz: [],
-        rightAnswerId: 1,
-        isFormValid: false,
-        formControls: {
-          question: createFormControls({
-            label: 'Вопрос',
-            errorMessage: 'Это поле не может быть пустым'
-          }, {
-            required: true
-          }),
-          option1: createOptionControl(1),
-          option2: createOptionControl(2),
-          option3: createOptionControl(3),
-          option4: createOptionControl(4)
-        }
-      })
-    } catch(error) {
-      console.log(error)
-    }
+    this.props.createQuiz();
   }
 
   addQuestionHandler = () => {
 
-    const quiz = this.state.quiz.concat();
+    const quiz = this.props.quiz.concat();
 
     const index = quiz.length + 1;
 
@@ -92,8 +87,9 @@ export default class QuizCreator extends Component {
 
     quiz.push(questionItem);
 
+    this.props.createQuestion(quiz);
+
     this.setState({
-      quiz,
       rightAnswerId: 1,
       isFormValid: false,
       formControls: {
@@ -192,7 +188,7 @@ export default class QuizCreator extends Component {
             <Button
               type="success"
               onClick={this.onCreateQuizHandler}
-              disabled={this.state.quiz.length === 0}
+              disabled={this.props.quiz.length === 0}
             >Создать тест</Button>
           </form>
 
@@ -202,3 +198,18 @@ export default class QuizCreator extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    quiz: state.create.quiz
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    createQuestion: (quiz) => dispatch(createQuestion(quiz)),
+    createQuiz: () => dispatch(createQuiz())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuizCreator);
